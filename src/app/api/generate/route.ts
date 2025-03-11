@@ -155,7 +155,19 @@ async function generateArticle(title: string, keywords: string, city: string = "
 // Handle POST requests to generate an article
 export async function POST(request: NextRequest) {
   try {
-    const { title, city, country, customKeywords } = await request.json();
+    // Parse the request body safely
+    let requestData;
+    try {
+      requestData = await request.json();
+    } catch (parseError) {
+      console.error('Error parsing request JSON:', parseError);
+      return NextResponse.json(
+        { error: 'Invalid JSON in request body' },
+        { status: 400 }
+      );
+    }
+    
+    const { title, city, country, customKeywords } = requestData;
     
     if (!title) {
       return NextResponse.json(
@@ -172,24 +184,49 @@ export async function POST(request: NextRequest) {
     console.log(`Location: ${locationCity}, ${locationCountry}`);
     console.log(`Custom keywords: ${customKeywords ? 'Provided' : 'Not provided'}`);
     
+    // Check if API key is configured
+    if (!apiKey) {
+      console.error('Gemini API key is not configured');
+      return NextResponse.json(
+        { error: 'API key is not configured. Please check your environment variables.' },
+        { status: 500 }
+      );
+    }
+    
     // Generate keywords if not provided
     let keywords = customKeywords;
-    if (!keywords) {
-      keywords = await generateKeywords(title, locationCity, locationCountry);
-      console.log(`Generated keywords: ${keywords}`);
-    } else {
-      console.log(`Using custom keywords: ${keywords}`);
+    try {
+      if (!keywords) {
+        keywords = await generateKeywords(title, locationCity, locationCountry);
+        console.log(`Generated keywords: ${keywords}`);
+      } else {
+        console.log(`Using custom keywords: ${keywords}`);
+      }
+    } catch (keywordError: any) {
+      console.error('Error generating keywords:', keywordError);
+      return NextResponse.json(
+        { error: `Failed to generate keywords: ${keywordError.message || 'Unknown error'}` },
+        { status: 500 }
+      );
     }
     
     // Generate article
-    const article = await generateArticle(title, keywords, locationCity, locationCountry);
-    console.log(`Article generation complete`);
-    
-    return NextResponse.json({
-      title,
-      keywords,
-      article
-    });
+    try {
+      const article = await generateArticle(title, keywords, locationCity, locationCountry);
+      console.log(`Article generation complete`);
+      
+      return NextResponse.json({
+        title,
+        keywords,
+        article
+      });
+    } catch (articleError: any) {
+      console.error('Error generating article:', articleError);
+      return NextResponse.json(
+        { error: `Failed to generate article: ${articleError.message || 'Unknown error'}` },
+        { status: 500 }
+      );
+    }
   } catch (error: any) {
     console.error('Error in generate API:', error);
     return NextResponse.json(

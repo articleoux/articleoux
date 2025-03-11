@@ -50,12 +50,17 @@ export default function GenerateArticle() {
         })
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to generate article')
+      // Handle non-JSON responses
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error(`Server returned non-JSON response: ${await response.text()}`);
       }
 
-      const data = await response.json()
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to generate article');
+      }
       
       console.log('Article generated successfully');
       setKeywords(data.keywords)
@@ -95,12 +100,17 @@ export default function GenerateArticle() {
         })
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to download article')
+      // Handle non-JSON responses
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error(`Server returned non-JSON response: ${await response.text()}`);
       }
 
-      const data = await response.json()
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to download article');
+      }
       
       console.log('Download prepared:', data);
       
