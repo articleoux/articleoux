@@ -24,6 +24,7 @@ async function generateKeywords(title: string, city: string = "New York", countr
     5. Consider local search intent for ${city} and ${country}
     
     Format the response as a comma-separated list of keywords.
+    Keep it concise and focused on the most relevant keywords only.
   `;
   
   try {
@@ -35,7 +36,7 @@ async function generateKeywords(title: string, city: string = "New York", countr
       temperature: 0.7,
       topK: 40,
       topP: 0.95,
-      maxOutputTokens: 1024,
+      maxOutputTokens: 512, // Reduced for faster response
     };
     
     const safetySettings = [
@@ -74,34 +75,26 @@ async function generateKeywords(title: string, city: string = "New York", countr
   }
 }
 
-// Function to generate an article based on the title, keywords, city and country
+// Function to generate a shorter article based on the title, keywords, city and country
 async function generateArticle(title: string, keywords: string, city: string = "New York", country: string = "USA") {
   const prompt = `
-    Consider yourself an experienced blogger living in ${city}, ${country}. Write a 2000+ word article titled "${title}."
+    Consider yourself an experienced blogger living in ${city}, ${country}. Write a concise article titled "${title}."
 
     Keywords:
     ${keywords}
 
     Structure:
-    Introduction: Capture attention with a personal anecdote or engaging story related to the topic.
-    Section 1: Provide a comprehensive overview of the topic, including definitions, history, and significance.
-    Section 2: Discuss the latest trends and developments related to the topic, incorporating insights from recent government updates and news sources.
-    Section 3: Address common FAQs about the topic, using a Q&A format with clear and concise answers.
-    Section 4: Share expert tips and advice for readers based on your experience as a blogger.
-    Conclusion: Summarize key takeaways and offer a call to action, inviting readers to engage further with the topic.
+    Introduction: Capture attention with a brief engaging opening related to the topic.
+    Main Points: Cover 2-3 key aspects of the topic with clear explanations.
+    Conclusion: Summarize key takeaways and offer a brief call to action.
 
     Additional Notes:
     - Use a casual, conversational tone throughout the article.
     - Emphasize your experience and expertise as a blogger from ${city}, ${country}.
-    - Cite credible sources and data to support your claims.
-    - Write in a clear, concise, and engaging style that is easy to read and understand.
-    - Include 3-5 internal links using the format <a href="#">keyword anchor text</a>
-    - Format the article in proper HTML with h1, h2, h3 tags, paragraph tags, and other HTML formatting
+    - Write in a clear, concise style that is easy to read and understand.
+    - Format the article in proper HTML with h1, h2 tags, paragraph tags, and other HTML formatting
     - Make sure the h1 tag contains the exact title of the article
-    - Use proper semantic HTML structure with sections, lists, and emphasis where appropriate
-    - Start the article with an h1 tag containing the title, followed by the introduction.
-    - Format the article in clean, valid HTML with proper indentation and structure.
-    - Include suggestions for image placements using HTML comments like <!-- Suggested image: [description] -->
+    - Keep the article between 500-800 words for this initial version.
   `;
   
   try {
@@ -113,7 +106,7 @@ async function generateArticle(title: string, keywords: string, city: string = "
       temperature: 0.7,
       topK: 40,
       topP: 0.95,
-      maxOutputTokens: 8192,
+      maxOutputTokens: 2048, // Reduced for faster response
     };
     
     const safetySettings = [

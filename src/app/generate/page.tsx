@@ -16,6 +16,7 @@ export default function GenerateArticle() {
   const [isDownloading, setIsDownloading] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
   const [generationStep, setGenerationStep] = useState('idle') // idle, keywords, article, complete
+  const [isShortArticle, setIsShortArticle] = useState(true)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,6 +32,7 @@ export default function GenerateArticle() {
     setKeywords('')
     setArticle('')
     setGenerationStep('keywords')
+    setIsShortArticle(true)
     
     try {
       console.log('Generating article with title:', title);
@@ -65,7 +67,7 @@ export default function GenerateArticle() {
       console.log('Article generated successfully');
       setKeywords(data.keywords)
       setArticle(data.article)
-      setSuccessMessage('Article generated successfully!')
+      setSuccessMessage('Article generated successfully! (Shorter version to avoid timeouts)')
       setGenerationStep('complete')
     } catch (err: any) {
       console.error('Error generating article:', err);
@@ -317,6 +319,12 @@ export default function GenerateArticle() {
                   className="prose prose-lg max-w-none bg-white p-6 rounded-md"
                   dangerouslySetInnerHTML={{ __html: article }}
                 />
+                <div className="mt-4 p-4 bg-blue-50 rounded-md">
+                  <p className="text-blue-700">
+                    <strong>Note:</strong> This is a shorter version of the article to avoid timeouts. 
+                    The article is approximately {article.split(' ').length} words.
+                  </p>
+                </div>
               </motion.div>
             )}
           </div>
